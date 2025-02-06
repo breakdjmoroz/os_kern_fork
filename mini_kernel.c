@@ -692,25 +692,39 @@ void compile(unsigned start_block, unsigned length) {
         printf("Reading block %d.\n", buf_block_pos);
         buf_block_pos++;
 
-        for (unsigned buf_pos = 0; buf_pos < SECTOR_SIZE; buf_pos++) {
+        unsigned buf_pos;
+        bool c_set = false;
+        for (buf_pos = 0; buf_pos < SECTOR_SIZE; buf_pos++) {
+#if 0
             if (buf[buf_pos] == '#') {
                 while (buf[buf_pos] != '\n' && buf_pos != SECTOR_SIZE) buf_pos++;
                 continue;
             }
+#endif
 
-            first_4b = convert_ascii(buf[buf_pos]);
-            if (0 <= first_4b && first_4b <= 15) {
-                second_4b = convert_ascii(buf[++buf_pos]);
-                if (0 <= second_4b && second_4b <= 15) {
-                    code[code_pos] = (first_4b << 4) | second_4b;
-                    printf("Writing char %x to code buffer.\n", code[code_pos]);
-                    code_pos++;
-                    if (code_pos == SECTOR_SIZE) {
-                        printf("Writing code block to sector %d.\n", code_block_pos);
-                        read_write_disk(code, code_block_pos++, 1);
-                        code_pos = 0;
-                    }
-                }
+            if (buf[buf_pos] == 10) {
+              continue;
+            }
+
+            char c = convert_ascii(buf[buf_pos]);
+            
+            if (!(0 <= c && c <= 15))
+                continue;
+
+            if (c_set) {
+                code[code_pos++] |= c;
+                printf("Writing char %x to code bufferi from buf_pos=%d+1.\n", code[code_pos], buf_pos);
+                c_set = false;
+            } else {
+                code[code_pos] |= (c << 4);
+                c_set = true;
+            }
+
+            if (code_pos == SECTOR_SIZE) {
+                printf("Writing code block to sector %d.\n", code_block_pos);
+                read_write_disk(code, code_block_pos, 1);
+                code_block_pos++;
+                code_pos = 0;
             }
         }
     }
