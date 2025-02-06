@@ -549,17 +549,22 @@ void handle_trap(struct trap_frame *f) {
 
 void kernel_main(void) {
     memset(__bss, 0, (size_t) __bss_end - (size_t) __bss);
-    printf("\n\n");
-    WRITE_CSR(stvec, (uint32_t) kernel_entry);
+
     virtio_blk_init();
-    fs_init();
-
-    idle_proc = create_process(NULL, 0);
-    idle_proc->pid = -1; // idle
-    current_proc = idle_proc;
-
-    create_process(_binary_shell_bin_start, (size_t) _binary_shell_bin_size);
-    yield();
+    char buf[512] = {};
+#if 1
+    read_write_disk(buf, 0, 0);
+#endif
+#if 0
+__asm__(
+        "lw a0, %0\n"
+        "li a1, 0x0\n"
+        "li a2, 0x0\n"
+        "call read_write_disk\n"
+        : "=g" (buf)
+       );
+#endif
+    printf(buf);
 
     PANIC("switched to idle process");
 }
