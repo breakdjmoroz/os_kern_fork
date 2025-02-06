@@ -674,7 +674,7 @@ char convert_ascii(char c) {
     if ('A' <= c && c <= 'F')
         return c - 'A' + 10;
     
-    return -1;
+    return 127;
 }
 
 void compile(unsigned start_block, unsigned length) {
@@ -685,8 +685,6 @@ void compile(unsigned start_block, unsigned length) {
     unsigned code_pos = 0;
     unsigned code_block_pos = 0;
 
-    char first_4b, second_4b;
- 
     while (buf_block_pos * SECTOR_SIZE < blk_capacity && buf_block_pos != length) {
         read_write_disk(buf, buf_block_pos, 0);
         printf("Reading block %d.\n", buf_block_pos);
@@ -702,18 +700,16 @@ void compile(unsigned start_block, unsigned length) {
             }
 #endif
 
-            if (buf[buf_pos] == 10) {
-              continue;
-            }
-
             char c = convert_ascii(buf[buf_pos]);
-            
-            if (!(0 <= c && c <= 15))
+#if 1
+            if (c == 127)
                 continue;
+#endif
 
             if (c_set) {
-                code[code_pos++] |= c;
+                code[code_pos] |= c;
                 printf("Writing char %x to code bufferi from buf_pos=%d+1.\n", code[code_pos], buf_pos);
+                code_pos++;
                 c_set = false;
             } else {
                 code[code_pos] |= (c << 4);
