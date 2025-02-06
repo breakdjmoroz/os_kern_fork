@@ -670,14 +670,81 @@ char convert_ascii(char c) {
     if ('0' <= c && c <= '9')
         return c - '0';
 
-    c &= ~ 0b00100000;
+    c &= 0b11011111;
     if ('A' <= c && c <= 'F')
         return c - 'A' + 10;
     
     return 127;
 }
 
-void compile(unsigned start_block, unsigned length) {
+void compile(unsigned first_sector/* start_block */, unsigned sectors_num/* length */) {
+
+    char buf[SECTOR_SIZE]         = {};
+    char code[SECTOR_SIZE]        = {}; 
+
+    unsigned current_sector       = first_sector;
+    unsigned current_code_sector  = first_sector;
+
+    char current_char             = '\0';
+    char is_first_digit           = true;
+
+    unsigned j = 0; /* code[] index */
+
+    while (current_sector < sectors_num)
+    {
+      read_write_disk(buf, current_sector, 0); /* read sector in buf*/
+
+      for (unsigned i = 0; i < SECTOR_SIZE; ++i)
+      {
+        current_char = convert_ascii(buf[i]);
+
+        if (current_char != 127) /* 127 - convert_ascii error value*/
+        {
+          if (is_first_digit)
+          {
+            code[j] = current_char << 4; /* upper 4 bits of the byte */
+
+            is_first_digit = false;
+          }
+          else
+          {
+            code[j] |= current_char; /* lower 4 bits of the byte */
+
+            ++j;
+
+            if (j == SECTOR_SIZE)
+            {
+              read_write_disk(code, current_code_sector, 1); /* write code sector */
+              ++current_code_sector;
+              j = 0;
+            }
+
+            is_first_digit = true;
+          }
+        }
+      }
+
+      ++current_sector;
+    }
+
+    char clear[512] = {};
+    unsigned current_clear_sector = current_code_sector + 1;
+
+    while (j < SECTOR_SIZE)
+    {
+      code[j] = 0;
+      ++j;
+    }
+    read_write_disk(code, current_code_sector, 1); /* fill last code sector with zeros */
+
+    while (current_clear_sector * SECTOR_SIZE < blk_capacity)
+    {
+      read_write_disk(clear, current_clear_sector, 1);
+      ++current_clear_sector;
+    } 
+
+
+#if 0
     char buf[SECTOR_SIZE] = {0};
     unsigned buf_block_pos = start_block;
 
@@ -701,10 +768,8 @@ void compile(unsigned start_block, unsigned length) {
 #endif
 
             char c = convert_ascii(buf[buf_pos]);
-#if 1
             if (c == 127)
                 continue;
-#endif
 
             if (c_set) {
                 code[code_pos] |= c;
@@ -735,4 +800,6 @@ void compile(unsigned start_block, unsigned length) {
         printf("Writing clear block to sector %d.\n", clear_block_pos);
         read_write_disk(clear, clear_block_pos, 1);
     } 
+
+#endif
 }
