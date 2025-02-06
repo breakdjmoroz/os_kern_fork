@@ -5,6 +5,9 @@ QEMU=qemu-system-riscv32
 CC=clang
 OBJCOPY=llvm-objcopy
 
+KERN=mini_kernel.img
+DISK=test
+
 CFLAGS="-std=c11 -O2 -g3 -Wall -Wextra --target=riscv32-unknown-elf -fno-stack-protector -ffreestanding -nostdlib"
 
 # Build the shell.
@@ -13,13 +16,13 @@ $OBJCOPY --set-section-flags .bss=alloc,contents -O binary shell.elf shell.bin
 $OBJCOPY -Ibinary -Oelf32-littleriscv shell.bin shell.bin.o
 
 # Build the kernel.
-$CC $CFLAGS -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf \
-    kernel.c common.c shell.bin.o
+$CC $CFLAGS -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o $KERN \
+    mini_kernel.c shell.bin.o
 
 (cd disk && tar cf ../disk.tar --format=ustar *.txt)
 
 $QEMU -machine virt -bios default -nographic -serial mon:stdio --no-reboot \
     -d unimp,guest_errors,int,cpu_reset -D qemu.log \
-    -drive id=drive0,file=hd0,format=raw,if=none \
+    -drive id=drive0,file=$DISK,format=raw,if=none \
     -device virtio-blk-device,drive=drive0,bus=virtio-mmio-bus.0 \
-    -kernel kernel.elf
+    -kernel $KERN
