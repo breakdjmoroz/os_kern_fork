@@ -5,7 +5,7 @@ QEMU=qemu-system-riscv32
 CC=clang
 OBJCOPY=llvm-objcopy
 
-KERN=mini_kernel.img
+KERN=kernel.elf
 DISK=test
 
 CFLAGS="-std=c11 -O2 -g3 -Wall -Wextra --target=riscv32-unknown-elf -fno-stack-protector -ffreestanding -nostdlib"
@@ -17,7 +17,7 @@ $OBJCOPY -Ibinary -Oelf32-littleriscv shell.bin shell.bin.o
 
 # Build the kernel.
 $CC $CFLAGS -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o $KERN \
-    mini_kernel.c shell.bin.o
+    kernel.c shell.bin.o
 
 (cd disk && tar cf ../disk.tar --format=ustar *.txt)
 
