@@ -15,7 +15,7 @@
 #define PAGE_X    (1 << 3)
 #define PAGE_U    (1 << 4)
 #define USER_BASE 0x1000000
-#define FILES_MAX   2
+#define FILES_MAX   5
 #define DISK_MAX_SIZE     align_up(sizeof(struct file) * FILES_MAX, SECTOR_SIZE)
 #define SECTOR_SIZE       512
 #define VIRTQ_ENTRY_NUM   16
@@ -154,7 +154,7 @@ struct tar_header {
 struct file {
     bool in_use;
     char name[100];
-    char data[1024];
+    char data[1024 * 1024];
     size_t size;
 };
 

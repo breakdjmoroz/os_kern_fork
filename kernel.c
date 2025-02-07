@@ -528,10 +528,6 @@ void handle_syscall(struct trap_frame *f) {
             f->a0 = len;
             break;
         }
-        case SYS_COMPILE:
-        {
-          break;
-        }
         default:
             PANIC("unexpected syscall a3=%x\n", f->a3);
     }

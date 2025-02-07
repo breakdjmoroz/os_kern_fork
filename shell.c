@@ -30,18 +30,18 @@ prompt:
         }
         else if (strcmp(cmdline, "readfile") == 0)
         {
-            char buf[512 * 4];
-            int len = readfile("program.hex0", buf, sizeof(buf));
+            char buf[128];
+            int len = readfile("hello.txt", buf, sizeof(buf));
             buf[len] = '\0';
             printf("%s\n", buf);
         }
         else if (strcmp(cmdline, "writefile") == 0)
         {
-            writefile("program.hex0", "Hello from shell!\n", 19);
+            writefile("hello.txt", "Hello from shell!\n", 19);
         }
         else if (strcmp(cmdline, "hex0") == 0)
         {
-          compile_hex0("program.hex0", "program.bin", 512 * 16); /* 16 sectors of 512 bytes */
+          compile_hex0("program.hex0", "program.bin", 1024 * 16); /* max file size */
         }
         else
         {
