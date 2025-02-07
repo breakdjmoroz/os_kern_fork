@@ -32,6 +32,12 @@ int writefile(const char *filename, const char *buf, int len) {
     return syscall(SYS_WRITEFILE, (int) filename, (int) buf, len);
 }
 
+/* Compile syscall */
+void compile_hex0(const char* input_filename, const char* output_filename, unsigned file_size)
+{
+  syscall(SYS_COMPILE, (int)input_filename, (int)output_filename, (int)file_size);
+}
+
 __attribute__((noreturn)) void exit(void) {
     syscall(SYS_EXIT, 0, 0, 0);
     for (;;);

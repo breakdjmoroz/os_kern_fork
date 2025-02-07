@@ -21,18 +21,31 @@ prompt:
         }
 
         if (strcmp(cmdline, "hello") == 0)
+        {
             printf("Hello world from shell!\n");
+        }
         else if (strcmp(cmdline, "exit") == 0)
+        {
             exit();
-        else if (strcmp(cmdline, "readfile") == 0) {
-            char buf[128];
-            int len = readfile("hello.txt", buf, sizeof(buf));
+        }
+        else if (strcmp(cmdline, "readfile") == 0)
+        {
+            char buf[512 * 4];
+            int len = readfile("program.hex0", buf, sizeof(buf));
             buf[len] = '\0';
             printf("%s\n", buf);
         }
         else if (strcmp(cmdline, "writefile") == 0)
-            writefile("hello.txt", "Hello from shell!\n", 19);
+        {
+            writefile("program.hex0", "Hello from shell!\n", 19);
+        }
+        else if (strcmp(cmdline, "hex0") == 0)
+        {
+          compile_hex0("program.hex0", "program.bin", 512 * 16); /* 16 sectors of 512 bytes */
+        }
         else
+        {
             printf("unknown command: %s\n", cmdline);
+        }
     }
 }
