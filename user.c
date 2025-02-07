@@ -1,4 +1,5 @@
 #include "user.h"
+#include "common.h"
 
 extern char __stack_top[];
 
@@ -16,6 +17,7 @@ int syscall(int sysno, int arg0, int arg1, int arg2) {
     return a0;
 }
 
+
 void putchar(char ch) {
     syscall(SYS_PUTCHAR, ch, 0, 0);
 }
@@ -30,6 +32,43 @@ int readfile(const char *filename, char *buf, int len) {
 
 int writefile(const char *filename, const char *buf, int len) {
     return syscall(SYS_WRITEFILE, (int) filename, (int) buf, len);
+}
+
+char convert_ascii(char c) {
+    if ('0' <= c && c <= '9')
+        return c - '0';
+
+    c &= 0b00100000;
+    if ('A' <= c && c <= 'F')
+        return c - 'A' + 10;
+
+    return 127;
+}
+
+int compile(const char* src, char* code, int code_len) {
+    char c;
+    char is_first_digit = true;
+
+    int i,j;
+
+    for (i = 0, j = 0; src[i] != '\0' && j < code_len; ++i) {
+        c = convert_ascii(src[i]);
+        if (c == 127)
+            continue;
+        if (is_first_digit) {
+            code[j] = c << 4;
+            is_first_digit = false;
+        } else {
+            code[j] |= c;
+            ++j;
+            is_first_digit = true;
+        }
+    }
+
+    if (src[i] == '\0')
+        return j + ((!is_first_digit) ? 1 : 0);
+
+    return 0;
 }
 
 __attribute__((noreturn)) void exit(void) {

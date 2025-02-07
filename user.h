@@ -11,4 +11,5 @@ void putchar(char ch);
 int getchar(void);
 int readfile(const char *filename, char *buf, int len);
 int writefile(const char *filename, const char *buf, int len);
+int compile(const char*, char*, int);
 __attribute__((noreturn)) void exit(void);
