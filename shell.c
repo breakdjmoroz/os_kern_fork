@@ -1,10 +1,11 @@
-#include "user.h"
+#include "user.h":
 
 void main(void) {
     while (1) {
 prompt:
         printf("> ");
         char cmdline[128];
+        int cmdline_len;
         for (int i = 0;; i++) {
             char ch = getchar();
             putchar(ch);
@@ -14,6 +15,7 @@ prompt:
             } else if (ch == '\r') {
                 printf("\n");
                 cmdline[i] = '\0';
+                cmdline_len = i;
                 break;
             } else {
                 cmdline[i] = ch;

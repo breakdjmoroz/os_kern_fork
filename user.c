@@ -1,4 +1,5 @@
 #include "user.h"
+#include "common.h"
 
 extern char __stack_top[];
 
@@ -15,6 +16,7 @@ int syscall(int sysno, int arg0, int arg1, int arg2) {
 
     return a0;
 }
+
 
 void putchar(char ch) {
     syscall(SYS_PUTCHAR, ch, 0, 0);
