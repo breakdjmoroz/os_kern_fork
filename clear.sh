@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm *.img
+rm *.img 
