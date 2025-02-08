@@ -1,7 +1,6 @@
 #!/bin/bash
 set -xue
 
-QEMU=qemu-system-riscv32
 CC=clang
 OBJCOPY=llvm-objcopy
 
@@ -15,7 +14,4 @@ $OBJCOPY -Ibinary -Oelf32-littleriscv shell.bin shell.bin.o
 # Build the kernel.
 $CC $CFLAGS -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf \
     kernel.c common.c shell.bin.o
-
-(cd disk && tar cf ../disk.tar --format=ustar *)
-
 
